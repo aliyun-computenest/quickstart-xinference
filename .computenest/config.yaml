@@ -1,0 +1,108 @@
+Service:
+  RegionId: cn-hangzhou
+  DeployType: ros
+  DeployMetadata:
+    ServiceInstanceNameRule:
+      Prefix: xinference
+    SupplierDeployMetadata:
+      ArtifactRelation:
+        'centos_7_9_x64_20G_alibase_20240403.vhd':
+          ArtifactId: ${Artifact.EcsImage.ArtifactId}
+          ArtifactVersion: ${Artifact.EcsImage.ArtifactVersion}
+    TemplateConfigs:
+      - Name: 单机版
+        Url: 'ros_templates/template.yaml'
+        AllowedRegions:
+          - cn-beijing
+          - cn-hangzhou
+          - cn-shanghai
+          - ap-southeast-1
+          - cn-qingdao
+          - cn-zhangjiakou
+          - cn-huhehaote
+          - cn-wulanchabu
+          - cn-nanjing
+          - cn-shenzhen
+          - cn-heyuan
+          - cn-guangzhou
+          - cn-fuzhou
+          - cn-wuhan-lr
+          - cn-chengdu
+          - cn-hongkong
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-southeast-2
+          - ap-southeast-3
+          - ap-southeast-6
+          - ap-southeast-5
+          - ap-southeast-7
+          - us-east-1
+          - us-west-1
+          - eu-west-1
+          - me-east-1
+          - eu-central-1
+  ServiceType: private
+  ServiceInfo:
+    Locale: zh-CN
+    ShortDescription: xinference deploy
+    Image: 'resources/icons/service_logo.png'
+Artifact:
+  EcsImage:
+    ArtifactType: EcsImage
+    ArtifactName: xinference
+    Description: xinference
+    ArtifactProperty:
+      RegionId: ${ImageBuilder.EcsImage.RegionId}
+      ImageId: ${ImageBuilder.EcsImage.SourceImageId}
+    SupportRegionIds:
+      - cn-beijing
+      - cn-hangzhou
+      - cn-shanghai
+      - ap-southeast-1
+      - cn-qingdao
+      - cn-zhangjiakou
+      - cn-huhehaote
+      - cn-wulanchabu
+      - cn-nanjing
+      - cn-shenzhen
+      - cn-heyuan
+      - cn-guangzhou
+      - cn-fuzhou
+      - cn-wuhan-lr
+      - cn-chengdu
+      - cn-hongkong
+      - ap-northeast-1
+      - ap-northeast-2
+      - ap-southeast-2
+      - ap-southeast-3
+      - ap-southeast-6
+      - ap-southeast-5
+      - ap-southeast-7
+      - us-east-1
+      - us-west-1
+      - eu-west-1
+      - me-east-1
+      - eu-central-1
+ImageBuilder:
+  EcsImage:
+    RegionId: cn-hangzhou
+    SourceImageId: centos_7_9_x64_20G_alibase_20240403.vhd
+    InstanceType: ecs.c6.large
+    InternetMaxBandwidthOut: 5
+    CommandType: RunShellScript
+    Timeout: 10800
+    Tags: [ ]
+    CommandContent: |-
+      #!/bin/bash
+      yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+      yum makecache fast
+      yum install -y git
+      yum -y install docker-ce jq
+      systemctl enable docker
+      systemctl start docker
+      
+      distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+      curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.repo | sudo tee /etc/yum.repos.d/nvidia-docker.repo
+      sudo yum install -y nvidia-docker2
+      systemctl restart docker
+      docker pull registry.cn-hangzhou.aliyuncs.com/xprobe_xinference/xinference:latest
